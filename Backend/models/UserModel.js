@@ -28,14 +28,8 @@ type:DataTypes.STRING,
 allowNull:false,
 },
 
-createPassword:{
- type: DataTypes.STRING,
-  allowNull: false,
-  validate: {
-    len: [6, 50]
-  }
-},
-confirmPassword:{
+
+password:{
  type: DataTypes.STRING,
   allowNull: false,
   validate: {
