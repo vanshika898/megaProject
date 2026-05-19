@@ -32,9 +32,7 @@ allowNull:false,
 password:{
  type: DataTypes.STRING,
   allowNull: false,
-  validate: {
-    len: [6, 50]
-  }
+  
 },
 phoneNo:{
 type: DataTypes.STRING,

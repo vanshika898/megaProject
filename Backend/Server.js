@@ -3,7 +3,9 @@ const app = express();
 require('dotenv').config();
 app.use(express.json());
 const db = require('./config/Database');
+const cookieParser = require('cookie-parser');
 
+app.use(cookieParser());
 
 db.sync();
 
