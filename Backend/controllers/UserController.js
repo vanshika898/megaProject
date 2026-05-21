@@ -176,3 +176,128 @@ exports.verifyOTP = async(req,res)=>{
   }
 }
 
+
+exports.sendResetPasswordLink = async(req,res)=>{
+  try{
+    const userId = req.user.id;
+    const {email} = req.body;
+    const user = await User.findOne({where:{id:userId,email}});
+    if(!user){
+      return res.status(404).json({
+        success:false,
+        message:"User not found"
+      })
+    }
+     const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.USER_EMAIL,
+                pass: process.env.APP_PASS
+            }
+        });
+         await transporter.sendMail({
+    from: process.env.USER_EMAIL,
+    to: email,
+    subject: 'Reset Password Link',
+
+    html: `
+    
+    <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 40px;">
+
+        <div style="max-width: 500px; background: white; margin: auto; padding: 30px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1);">
+
+            <h2 style="text-align: center; color: #333;">
+                Reset Your Password
+            </h2>
+
+            <p style="color: #555; font-size: 16px;">
+                Hello,
+            </p>
+
+            <p style="color: #555; font-size: 16px;">
+                We received a request to reset your password.
+                Click the button below to create a new password.
+            </p>
+
+            <div style="text-align: center; margin: 30px 0;">
+
+                <a 
+                    href="http://localhost:3000/api/v1/user/password/reset"
+                    style="
+                        background-color: #4CAF50;
+                        color: white;
+                        padding: 12px 25px;
+                        text-decoration: none;
+                        border-radius: 5px;
+                        font-size: 16px;
+                        display: inline-block;
+                    "
+                >
+                    Reset Password
+                </a>
+
+            </div>
+
+            <p style="color: #777; font-size: 14px;">
+                If you did not request a password reset, you can safely ignore this email.
+            </p>
+
+            <hr style="margin-top: 30px;">
+
+            <p style="text-align: center; color: #999; font-size: 12px;">
+                © 2026 Your Company. All rights reserved.
+            </p>
+
+        </div>
+
+    </div>
+
+    `
+});
+ return res.status(200).send('Reset password link sent successfully');
+  }catch(error){
+    res.status(500).json({
+      sucess:false,
+      message:'Some error in sending reset passsword link',
+      error:error.message
+    })
+  }
+}
+
+
+exports.ResetPassword = async(req,res)=>{
+  try
+  {
+    const userId = req.user.id;
+    const {email,newPassword} = req.body;
+    const user = await User.findOne({where:{id:userId,email}});
+    if(!user){
+      return res.status(404).json({
+        success:false,
+        message:"User not found"
+      })
+    }
+
+   const hash = await bcrypt.hash(newPassword,10);
+   const setPassword = await User.update({password:hash},{where:{id:userId,email}});
+   if(!setPassword){
+    return res.status(500).json({
+      success:false,
+      message:"Unable to reset password"
+    })
+   }
+   return res.status(200).json({
+  success:true,
+  message:"Password reset successfully"
+
+   })
+
+  }catch(error){
+   return res.status(500).json({
+      sucess:false,
+      message:'Some error in resetting password',
+      error:error.message
+    })
+  }
+   
+}

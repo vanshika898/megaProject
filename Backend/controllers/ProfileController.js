@@ -4,13 +4,9 @@ const User = require('../models/UserModel');
 exports.createProfile = async(req,res)=>{
   try{
     const{email,image,gender,dateOfBirth} = req.body;
- 
     const userId = req.user.id;
-
    const user = await User.findOne({where:{id:userId}});
-   
     if(!user){
-
       return res.status(404).json({
 
         success:false,
